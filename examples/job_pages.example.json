@@ -1,0 +1,67 @@
+[
+  {
+    "url": "https://example.com/jobs/ai-001",
+    "query": "深圳 AI应用工程师 招聘",
+    "title": "AI应用工程师（工程方向）",
+    "company": "某工程科技公司",
+    "snippet": "深圳，25-40K，3-5年，本科。",
+    "date": "2026-10-22",
+    "site_name": "51job",
+    "source_type": "local",
+    "page_text": "负责工程AI应用、RAG知识库与Agent工具链落地。",
+    "fetch_status": "ok",
+    "fallback": false
+  },
+  {
+    "url": "https://example.com/jobs/struct-002",
+    "query": "深圳 结构工程师 招聘",
+    "title": "结构工程师（高层方向）",
+    "company": "某建筑设计院",
+    "snippet": "深圳，22-32K，3-5年，本科。",
+    "date": "2026-10-21",
+    "site_name": "猎聘",
+    "source_type": "ext",
+    "page_text": "负责高层建筑结构方案与施工图设计。",
+    "fetch_status": "ok",
+    "fallback": false
+  },
+  {
+    "url": "https://example.com/jobs/bim-003",
+    "query": "深圳 BIM工程师 招聘",
+    "title": "BIM研发工程师",
+    "company": "某数字建造公司",
+    "snippet": "深圳，20-30K，3-5年，本科。",
+    "date": "2026-10-20",
+    "site_name": "BOSS直聘",
+    "source_type": "snapshot",
+    "page_text": "负责BIM模型开发与Revit二次开发。",
+    "fetch_status": "ok",
+    "fallback": false
+  },
+  {
+    "url": "https://example.com/jobs/cae-004",
+    "query": "深圳 CAE仿真 招聘",
+    "title": "CAE仿真工程师",
+    "company": "某制造企业",
+    "snippet": "深圳，20-28K，3-5年，硕士。",
+    "date": "2026-10-20",
+    "site_name": "智联招聘",
+    "source_type": "snapshot",
+    "page_text": "负责有限元分析与结构优化。",
+    "fetch_status": "snapshot",
+    "fallback": true
+  },
+  {
+    "url": "https://example.com/jobs/water-005",
+    "query": "深圳 水利结构 招聘",
+    "title": "水利结构工程师",
+    "company": "某水利设计院",
+    "snippet": "深圳，18-26K，3-5年，本科。",
+    "date": "2026-10-19",
+    "site_name": "国聘",
+    "source_type": "snapshot",
+    "page_text": "负责水工建筑物结构设计。",
+    "fetch_status": "snapshot",
+    "fallback": true
+  }
+]

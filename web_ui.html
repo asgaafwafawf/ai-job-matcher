@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>岗位匹配助手</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --brand: #2563eb;
+    --brand-dark: #1d4ed8;
+    --ok: #166534;
+    --ok-bg: #dcfce7;
+    --warn: #92400e;
+    --warn-bg: #fef3c7;
+    --err: #991b1b;
+    --err-bg: #fee2e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  .page { max-width: 1220px; margin: 0 auto; padding: 26px 20px 52px; }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  h1 { margin: 0; font-size: 28px; letter-spacing: .5px; }
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  h2 { margin: 0; font-size: 16px; }
+  .badge {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #475569;
+  }
+  .badge.running { background: #dbeafe; color: #1d4ed8; }
+  .badge.success { background: var(--ok-bg); color: var(--ok); }
+  .badge.error { background: var(--err-bg); color: var(--err); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 350px;
+    gap: 18px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+    margin-bottom: 18px;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+  .note { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+
+  .drop-zone {
+    border: 1.5px dashed #bfdbfe;
+    background: #f8fbff;
+    border-radius: 14px;
+    padding: 26px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    background: #eff6ff;
+    border-color: var(--brand);
+  }
+  .upload-icon {
+    display: inline-block;
+    color: var(--brand);
+    background: #dbeafe;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .upload-title { margin: 12px 0 0; font-size: 16px; font-weight: 600; }
+  #pickResumeBtn {
+    margin-top: 12px;
+    border: 0;
+    border-radius: 10px;
+    padding: 9px 18px;
+    color: #fff;
+    background: var(--brand);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #pickResumeBtn:hover { background: var(--brand-dark); }
+  #pickResumeBtn:disabled { opacity: .55; cursor: not-allowed; }
+
+  .hint {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 13px;
+  }
+  .hint.warning { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+  .hint.error { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .chip.grey { background: #f1f5f9; color: #475569; }
+
+  .chat-messages {
+    height: 360px;
+    overflow: auto;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #eef2f7;
+  }
+  .chat-empty { color: var(--muted); font-size: 13px; padding: 18px 6px; }
+  .msg { display: flex; margin: 8px 0; }
+  .msg.user { justify-content: flex-end; }
+  .msg.assistant { justify-content: flex-start; }
+  .bubble {
+    max-width: 82%;
+    border-radius: 12px;
+    padding: 10px 13px;
+    font-size: 13.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .msg.user .bubble { background: var(--brand); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.assistant .bubble { background: #fff; border: 1px solid var(--line); color: var(--text); border-bottom-left-radius: 4px; }
+  .msg-time { font-size: 10px; color: #94a3b8; margin-top: 4px; }
+  .typing { color: var(--muted); font-size: 12.5px; padding: 6px 4px; }
+  .chat-input-row { display: flex; gap: 10px; margin-top: 12px; align-items: flex-end; }
+  textarea {
+    flex: 1;
+    resize: vertical;
+    min-height: 54px;
+    max-height: 160px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+  }
+  textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+  textarea:disabled { background: #f8fafc; color: #94a3b8; }
+  .chat-input-row button, .run-panel .section-head button {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 20px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chat-input-row button:hover, .run-panel .section-head button:hover { background: var(--brand-dark); }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .chat-status { min-height: 18px; color: var(--muted); font-size: 12.5px; margin-top: 8px; }
+
+  .progress {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    margin: 14px 0 8px;
+  }
+  .log-head {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 12px;
+    margin: 8px 0;
+  }
+  .log {
+    height: 360px;
+    overflow: auto;
+    margin: 0;
+    padding: 14px;
+    border-radius: 12px;
+    background: #0f172a;
+    color: #dbeafe;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .result {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .result a {
+    color: #fff;
+    background: #16a34a;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .result a:hover { background: #15803d; }
+  .hidden { display: none; }
+
+  .sidebar .panel { padding: 18px; }
+  .sidebar h2 { font-size: 15px; margin-bottom: 10px; }
+  .profile-line { margin: 4px 0; font-size: 13px; color: #374151; word-break: break-word; }
+  .profile-line strong { color: var(--text); }
+  .profile-skills { color: #374151; }
+  .pages-line { margin-top: 12px; color: var(--muted); font-size: 13px; }
+  .pages-line strong { color: var(--brand); font-size: 20px; }
+  .keyword-list { margin: 8px 0 0; padding-left: 18px; color: #374151; font-size: 13px; }
+  .keyword-list li { margin: 3px 0; }
+  .reports { display: flex; flex-direction: column; gap: 8px; }
+  .reports a {
+    color: var(--brand);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+  }
+  .reports a:hover { background: #eff6ff; border-color: #bfdbfe; }
+  .settings summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+  .settings-body { margin-top: 12px; }
+  .settings-body label { display: block; color: var(--muted); font-size: 12.5px; margin: 8px 0 4px; }
+  .settings-body input, .settings-body select {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+  }
+  .settings-body select { cursor: pointer; }
+  .settings-body hr { border: 0; border-top: 1px solid var(--line); margin: 14px 0; }
+  .small-btn {
+    margin-top: 10px;
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: var(--brand);
+    color: #fff;
+    cursor: pointer;
+  }
+  .ghost {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .small-btn:hover { opacity: .9; }
+  footer { color: var(--muted); text-align: center; font-size: 12px; margin-top: 26px; }
+  @media (max-width: 920px) {
+    .layout { grid-template-columns: 1fr; }
+    header { align-items: flex-start; }
+    .chat-messages { height: 320px; }
+    .log { height: 300px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div>
+      <h1>岗位匹配助手</h1>
+      <p class="sub">上传简历 · 与模型对话 · 本地匹配 · 生成报告</p>
+    </div>
+    <span id="statusBadge" class="badge">就绪</span>
+  </header>
+
+  <main class="layout">
+    <section>
+      <div class="panel">
+        <div class="section-head">
+          <h2>1. 上传简历</h2>
+          <span id="uploadMeta" class="muted small"></span>
+        </div>
+        <div id="dropZone" class="drop-zone">
+          <input id="resumeInput" type="file" accept=".pdf,.docx,.txt" hidden>
+          <span class="upload-icon">PDF / DOCX / TXT</span>
+          <p class="upload-title">点击选择，或把简历拖到这里</p>
+          <p class="note">仅在本次会话临时保存，后台解析后立即删除；不会写入 resume/ 长期保留。</p>
+          <button id="pickResumeBtn" type="button">选择简历文件</button>
+        </div>
+        <div id="uploadStatus" class="hint">尚未上传简历。</div>
+      </div>
+
+      <div class="panel">
+        <div class="section-head">
+          <h2>2. 与模型对话</h2>
+          <div id="chatMeta" class="chips hidden">
+            <span id="targetCityChip" class="chip grey">目标城市：未确定</span>
+            <span id="keywordChip" class="chip grey">关键词：未生成</span>
+          </div>
+        </div>
+        <div id="chatMessages" class="chat-messages">
+          <div class="chat-empty">上传简历后，模型会解析简历，并在这里询问目标城市、薪资和求职方向。</div>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="chatInput" rows="2" placeholder="例如：我在深圳，期望25K，想做AI应用或结构设计，不考虑外包" disabled></textarea>
+          <button id="sendBtn" type="button" disabled>发送</button>
+        </div>
+        <div id="chatStatus" class="chat-status"></div>
+        <p class="note">仅处理求职匹配相关问题；百科、学科、闲聊、本程序实现、模型/提示词/API/反代等问题会被拒绝。</p>
+      </div>
+
+      <div class="panel">
+        <div class="section-head">
+          <h2>3. 开始匹配</h2>
+          <button id="startBtn" type="button" disabled>开始匹配</button>
+        </div>
+        <div id="runHint" class="hint">上传简历并完成对话后启用。</div>
+        <div class="progress">
+          <span id="elapsed"></span>
+          <span id="summaryLine"></span>
+        </div>
+        <div class="log-head"><span>运行日志</span><span id="logHint"></span></div>
+        <pre id="logPanel" class="log">等待开始...</pre>
+        <div id="resultPanel" class="result hidden">
+          <strong id="resultTitle"></strong>
+          <a id="reportLink" href="#" target="_blank" rel="noopener">打开 HTML 报告</a>
+        </div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <h2>解析后的简历</h2>
+        <div id="profileBox" class="muted">尚未上传简历。</div>
+      </div>
+
+      <div class="panel">
+        <h2>岗位关键词</h2>
+        <div id="keywordsBox" class="muted">完成对话后生成。</div>
+        <div class="pages-line">pages/ 文件：<strong id="pagesCount">0</strong> 个</div>
+        <p class="note">DeepSeek 搜索默认启用时，可跳过 pages/ 采集；自动搜索仅在 BOSS直聘、猎聘、51job、智联招聘、国聘官网进行，每个站点最多 10 个岗位。</p>
+      </div>
+
+      <div class="panel">
+        <details class="settings">
+          <summary>推送与搜索设置</summary>
+          <div class="settings-body">
+            <p id="settingsStatus" class="note"></p>
+            <label for="sendkeyInput">Server酱 SendKey</label>
+            <input id="sendkeyInput" type="password" autocomplete="off" placeholder="未配置">
+            <button id="testPushBtn" type="button" class="ghost small-btn">测试推送</button>
+
+            <hr>
+            <label for="providerSelect">搜索来源</label>
+            <select id="providerSelect">
+              <option value="deepseek">DeepSeek 搜索（用已配置 key）</option>
+              <option value="bocha">博查</option>
+              <option value="bing">Bing</option>
+            </select>
+            <p class="note">DeepSeek 搜索直接使用已配置的 DeepSeek key，不需要额外搜索 key。</p>
+            <label for="searchKeyInput">博查/Bing Key</label>
+            <input id="searchKeyInput" type="password" autocomplete="off" placeholder="未配置">
+            <label for="searchBackupInput">备份 Key</label>
+            <input id="searchBackupInput" type="password" autocomplete="off" placeholder="未配置">
+            <button id="saveSettingsBtn" type="button" class="small-btn">保存设置</button>
+            <div id="settingsMsg" class="chat-status"></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="panel">
+        <h2>历史报告</h2>
+        <div id="reportsBox" class="reports muted">暂无报告</div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    上传的简历只在本次会话临时保存，解析后立即删除；DeepSeek key 保留在 config.json，不返回给浏览器。
+  </footer>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let currentSession = null;
+  let busy = false;
+  let runRunning = false;
+  let pollTimer = null;
+  let lastLog = "";
+  let pagesFiles = 0;
+  let searchAuto = false;
+
+  async function api(path, options) {
+    const response = await fetch(path, options);
+    let data = {};
+    try { data = await response.json(); } catch (e) {}
+    if (!response.ok) throw new Error(data.error || ("HTTP " + response.status));
+    return data;
+  }
+
+  function setBadge(text, cls) {
+    const badge = $("statusBadge");
+    badge.textContent = text;
+    badge.className = "badge " + (cls || "");
+  }
+
+  function addLine(container, label, value) {
+    const p = document.createElement("p");
+    p.className = "profile-line";
+    if (label) {
+      const strong = document.createElement("strong");
+      strong.textContent = label + "：";
+      p.appendChild(strong);
+    }
+    p.appendChild(document.createTextNode(value || ""));
+    container.appendChild(p);
+    return p;
+  }
+
+  function renderProfile(session) {
+    const box = $("profileBox");
+    box.textContent = "";
+    const profile = session.profile;
+    if (!profile) {
+      box.className = "muted";
+      box.textContent = "尚未上传简历。";
+      return;
+    }
+    box.className = "";
+    addLine(box, "姓名", `${profile.name || "未知"} · ${profile.years_of_experience || 0} 年经验 · ${profile.degree || "学历未知"}`);
+    addLine(box, "当前岗位", profile.current_title || "未提供");
+    addLine(box, "行业", profile.industry || "未提供");
+    addLine(box, "期望", `${profile.expected_city || "未确定"} · ${profile.expected_salary_k || "未指定"}K`);
+    const skills = Array.isArray(profile.skills) ? profile.skills : [];
+    addLine(box, "技能", skills.length ? skills.slice(0, 12).join("、") + (skills.length > 12 ? " 等" : "") : "未提供");
+    const certificates = Array.isArray(profile.certificates) ? profile.certificates : [];
+    if (certificates.length) addLine(box, "证书", certificates.join("、"));
+    if (profile.summary) addLine(box, "画像", profile.summary);
+    if (session.preferences) addLine(box, "求职偏好", session.preferences);
+  }
+
+  function renderKeywords(session) {
+    const box = $("keywordsBox");
+    box.textContent = "";
+    const keywords = session.keywords;
+    if (!keywords) {
+      box.className = "muted";
+      box.textContent = "完成对话后生成。";
+      return;
+    }
+    box.className = "";
+    const titles = Array.isArray(keywords.job_titles) ? keywords.job_titles : [];
+    const summary = session.keyword_summary || {};
+    addLine(box, "岗位方向", `${summary.job_titles || 0} 个 / 搜索词 ${summary.search_terms || 0} 个`);
+    const list = document.createElement("ul");
+    list.className = "keyword-list";
+    titles.slice(0, 8).forEach(title => {
+      const li = document.createElement("li");
+      li.textContent = title;
+      list.appendChild(li);
+    });
+    if (titles.length > 8) {
+      const li = document.createElement("li");
+      li.textContent = `还有 ${titles.length - 8} 个方向...`;
+      list.appendChild(li);
+    }
+    box.appendChild(list);
+  }
+
+  function renderChatMeta(session) {
+    const meta = $("chatMeta");
+    if (!session.profile) {
+      meta.classList.add("hidden");
+      return;
+    }
+    meta.classList.remove("hidden");
+    const target = $("targetCityChip");
+    target.textContent = session.target_city ? `目标城市：${session.target_city}` : "目标城市：未确定";
+    target.className = "chip " + (session.target_city ? "" : "grey");
+    const keyword = $("keywordChip");
+    const summary = session.keyword_summary || {};
+    if (summary.job_titles) {
+      keyword.textContent = `关键词：${summary.job_titles} 个岗位 / ${summary.search_terms} 个搜索词`;
+      keyword.className = "chip";
+    } else {
+      keyword.textContent = "关键词：未生成";
+      keyword.className = "chip grey";
+    }
+  }
+
+  function appendBubble(role, content, time) {
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + role;
+    const inner = document.createElement("div");
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = content;
+    inner.appendChild(bubble);
+    if (time) {
+      const stamp = document.createElement("div");
+      stamp.className = "msg-time";
+      stamp.textContent = time;
+      inner.appendChild(stamp);
+    }
+    wrap.appendChild(inner);
+    $("chatMessages").appendChild(wrap);
+  }
+
+  function renderMessages(session) {
+    const box = $("chatMessages");
+    box.textContent = "";
+    const messages = session.messages || [];
+    if (!messages.length) {
+      const empty = document.createElement("div");
+      empty.className = "chat-empty";
+      empty.textContent = session.profile
+        ? "继续和模型对话，补充目标城市、薪资和方向。"
+        : "上传简历后，模型会解析简历，并在这里询问目标城市、薪资和求职方向。";
+      box.appendChild(empty);
+    } else {
+      messages.forEach(message => appendBubble(message.role, message.content, message.time));
+    }
+    if (session.processing) {
+      const typing = document.createElement("div");
+      typing.className = "typing";
+      typing.textContent = "模型正在思考...";
+      box.appendChild(typing);
+    }
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function updateControls(session) {
+    const processing = !!(session && session.processing);
+    const hasProfile = !!(session && session.profile);
+    const ready = !!(session && session.ready);
+    const disabled = busy || runRunning || processing;
+    $("chatInput").disabled = disabled || !hasProfile;
+    $("sendBtn").disabled = disabled || !hasProfile;
+    $("startBtn").disabled = disabled || !ready;
+    $("pickResumeBtn").disabled = runRunning || processing;
+    $("resumeInput").disabled = runRunning || processing;
+    $("uploadStatus").textContent = hasProfile
+      ? `已上传：${session.resume_name || "简历"} · 已解析（临时）`
+      : "尚未上传简历。";
+    $("uploadStatus").className = "hint" + (hasProfile ? "" : " warning");
+    if (runRunning) {
+      $("runHint").textContent = "匹配运行中，请稍候...";
+      $("runHint").className = "hint";
+    } else if (ready) {
+      if (pagesFiles === 0 && searchAuto) {
+        $("runHint").textContent = "条件已就绪：本地 pages 为空，将自动使用搜索补充岗位。";
+      } else {
+        $("runHint").textContent = "条件已就绪，可以开始匹配。";
+      }
+      $("runHint").className = "hint";
+    } else if (hasProfile) {
+      $("runHint").textContent = "继续和模型对话，确认目标城市后启用。";
+      $("runHint").className = "hint";
+    } else {
+      $("runHint").textContent = "上传简历并完成对话后启用。";
+      $("runHint").className = "hint";
+    }
+  }
+
+  function applySession(session) {
+    currentSession = session;
+    renderProfile(session);
+    renderKeywords(session);
+    renderMessages(session);
+    renderChatMeta(session);
+    updateControls(session);
+  }
+
+  function renderReports(reports) {
+    const box = $("reportsBox");
+    box.textContent = "";
+    if (!reports || !reports.length) {
+      box.className = "reports muted";
+      box.textContent = "暂无报告";
+      return;
+    }
+    box.className = "reports";
+    reports.forEach(report => {
+      const link = document.createElement("a");
+      link.href = report.url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = `${report.name} · ${report.mtime}`;
+      box.appendChild(link);
+    });
+  }
+
+  function renderSettings(settings) {
+    $("sendkeyInput").placeholder = settings.serverchan_configured ? "已配置，留空不修改" : "未配置";
+    $("searchKeyInput").placeholder = settings.search_key_configured ? "已配置，留空不修改" : "未配置";
+    $("searchBackupInput").placeholder = settings.search_backup_configured ? "已配置，留空不修改" : "未配置";
+    const provider = settings.search_api_provider || "deepseek";
+    $("providerSelect").value = provider;
+    let searchStatus;
+    if (provider === "deepseek") {
+      searchStatus = settings.deepseek_configured ? "DeepSeek 搜索可用" : "DeepSeek 搜索未配置";
+    } else {
+      searchStatus = settings.search_key_configured ? "搜索 key 已配置" : "搜索 key 未配置";
+    }
+    $("settingsStatus").textContent =
+      `DeepSeek：${settings.deepseek_configured ? "已配置" : "未配置"} · ` +
+      `微信推送：${settings.serverchan_configured ? "已配置" : "未配置"} · ` +
+      searchStatus;
+  }
+
+  async function loadInfo() {
+    const info = await api("/api/info");
+    applySession(info.session);
+    pagesFiles = info.pages_files || 0;
+    $("pagesCount").textContent = pagesFiles;
+    const settings = info.settings || {};
+    searchAuto =
+      (settings.search_api_provider === "deepseek" && settings.deepseek_configured) ||
+      (["bocha", "bing"].includes(settings.search_api_provider) && settings.search_key_configured);
+    renderReports(info.reports);
+    renderSettings(settings);
+    runRunning = !!info.running;
+    updateControls(currentSession);
+    if (runRunning && !pollTimer) startRunPolling();
+    if (info.session && info.session.processing) {
+      $("chatStatus").textContent = "模型正在处理，请稍候...";
+      setTimeout(() => { loadInfo().catch(() => {}); }, 1500);
+    }
+    return info;
+  }
+
+  function formatSummary(summary) {
+    if (!summary || !Object.keys(summary).length) return "";
+    const local = summary.local || {};
+    const search = summary.search || {};
+    const rank = summary.rank || {};
+    const push = summary.push || {};
+    const parts = [];
+    if (local.pages_found !== undefined || local.jobs_extracted !== undefined) {
+      parts.push(`本地页面 ${local.pages_found || 0} 个（提取 ${local.jobs_extracted || 0} 岗位）`);
+    }
+    if (search.added !== undefined) parts.push(`快照新增 ${search.added || 0} 条`);
+    if (rank.top_n !== undefined) parts.push(`推荐 ${rank.top_n || 0} 条`);
+    if (push.pushed === true) parts.push("微信已推送");
+    else if (push.reason) parts.push(`未推送：${push.reason}`);
+    const failed = ["local", "search", "rank", "report", "push"].some(
+      key => summary[key] && summary[key].error
+    );
+    if (failed) parts.push("部分步骤失败，详见日志");
+    return parts.join(" · ");
+  }
+
+  function updateLogs(logs) {
+    if (!logs || logs === lastLog) return;
+    const panel = $("logPanel");
+    const nearBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 40;
+    panel.textContent = logs;
+    lastLog = logs;
+    if (nearBottom) panel.scrollTop = panel.scrollHeight;
+  }
+
+  function showResult(state) {
+    if (!state.report_url) return;
+    $("resultPanel").classList.remove("hidden");
+    $("resultTitle").textContent = `本次推荐 ${state.jobs || 0} 个岗位`;
+    $("reportLink").href = state.report_url;
+  }
+
+  async function pollRun() {
+    let state;
+    try {
+      state = await api("/api/status");
+    } catch (error) {
+      $("runHint").textContent = "读取运行状态失败：" + error.message;
+      $("runHint").className = "hint error";
+      return;
+    }
+    updateLogs(state.logs);
+    $("elapsed").textContent = state.elapsed ? `耗时 ${state.elapsed}s` : "";
+    $("summaryLine").textContent = formatSummary(state.summary);
+
+    if (state.running) {
+      runRunning = true;
+      setBadge("运行中", "running");
+      updateControls(currentSession);
+      return;
+    }
+
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+    runRunning = false;
+    if (state.error) {
+      setBadge("失败", "error");
+      $("runHint").className = "hint error";
+      $("runHint").textContent = state.error;
+    } else if (state.report_url) {
+      setBadge("完成", "success");
+      $("runHint").className = "hint";
+      $("runHint").textContent = "匹配完成，可以打开报告查看。";
+    } else {
+      setBadge("就绪", "");
+    }
+    showResult(state);
+    updateControls(currentSession);
+    try { await loadInfo(); } catch (e) {}
+  }
+
+  function startRunPolling() {
+    if (pollTimer) return;
+    pollTimer = setInterval(pollRun, 1000);
+    pollRun();
+  }
+
+  async function startMatch() {
+    if (!currentSession || !currentSession.ready || busy || runRunning) return;
+    busy = true;
+    runRunning = true;
+    $("resultPanel").classList.add("hidden");
+    $("reportLink").href = "#";
+    lastLog = "";
+    $("logPanel").textContent = "正在启动...";
+    $("summaryLine").textContent = "";
+    $("elapsed").textContent = "";
+    setBadge("运行中", "running");
+    updateControls(currentSession);
+    try {
+      await api("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}"
+      });
+      busy = false;
+      startRunPolling();
+    } catch (error) {
+      busy = false;
+      runRunning = false;
+      setBadge("就绪", "");
+      $("runHint").className = "hint error";
+      $("runHint").textContent = error.message;
+      updateControls(currentSession);
+    }
+  }
+
+  async function uploadFile(file) {
+    if (!file || busy || runRunning) return;
+    const name = file.name || "resume";
+    const lower = name.toLowerCase();
+    if (!lower.endsWith(".pdf") && !lower.endsWith(".docx") && !lower.endsWith(".txt")) {
+      $("uploadStatus").className = "hint error";
+      $("uploadStatus").textContent = "只支持 PDF / DOCX / TXT 文件。";
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      $("uploadStatus").className = "hint error";
+      $("uploadStatus").textContent = "文件超过 10MB。";
+      return;
+    }
+    busy = true;
+    $("uploadStatus").className = "hint";
+    $("uploadStatus").textContent = "正在读取文件...";
+    setBadge("解析中", "running");
+    updateControls(currentSession);
+    const reader = new FileReader();
+    reader.onerror = () => {
+      busy = false;
+      $("uploadStatus").className = "hint error";
+      $("uploadStatus").textContent = "读取文件失败。";
+      setBadge("就绪", "");
+      updateControls(currentSession);
+    };
+    reader.onload = async () => {
+      try {
+        const result = String(reader.result || "");
+        const base64 = result.includes(",") ? result.split(",")[1] : "";
+        $("uploadStatus").textContent = "模型正在解析简历，请稍候...";
+        const data = await api("/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: name, content_base64: base64 })
+        });
+        applySession(data.session);
+        $("uploadStatus").className = "hint";
+        $("uploadStatus").textContent = "简历已解析。请在下方对话中补充求职条件。";
+        setBadge("就绪", "");
+        $("chatInput").focus();
+      } catch (error) {
+        $("uploadStatus").className = "hint error";
+        $("uploadStatus").textContent = error.message;
+        setBadge("就绪", "");
+        try { await loadInfo(); } catch (e) {}
+      } finally {
+        busy = false;
+        $("resumeInput").value = "";
+        updateControls(currentSession);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function sendMessage() {
+    if (!currentSession || !currentSession.profile || busy || runRunning) return;
+    const message = $("chatInput").value.trim();
+    if (!message) return;
+    busy = true;
+    $("chatInput").value = "";
+    appendBubble("user", message, "刚刚");
+    const box = $("chatMessages");
+    const typing = document.createElement("div");
+    typing.className = "typing";
+    typing.textContent = "模型正在理解你的要求...";
+    box.appendChild(typing);
+    box.scrollTop = box.scrollHeight;
+    $("chatStatus").textContent = "模型正在理解并生成岗位关键词...";
+    setBadge("对话中", "running");
+    updateControls(currentSession);
+    try {
+      const data = await api("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+      });
+      applySession(data.session);
+      $("chatStatus").textContent = "";
+      setBadge(data.session.ready ? "就绪" : "继续对话", "");
+      $("chatInput").focus();
+    } catch (error) {
+      $("chatStatus").textContent = error.message;
+      setBadge("就绪", "");
+      try { await loadInfo(); } catch (e) {}
+    } finally {
+      busy = false;
+      updateControls(currentSession);
+    }
+  }
+
+  async function saveSettings() {
+    busy = true;
+    $("settingsMsg").textContent = "正在保存...";
+    try {
+      const data = await api("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serverchan_sendkey: $("sendkeyInput").value.trim(),
+          search_api_provider: $("providerSelect").value,
+          search_api_key: $("searchKeyInput").value.trim(),
+          search_api_backup_key: $("searchBackupInput").value.trim()
+        })
+      });
+      renderSettings(data.settings);
+      $("sendkeyInput").value = "";
+      $("searchKeyInput").value = "";
+      $("searchBackupInput").value = "";
+      $("settingsMsg").textContent = "设置已保存。";
+      try { await loadInfo(); } catch (e) {}
+    } catch (error) {
+      $("settingsMsg").textContent = error.message;
+    } finally {
+      busy = false;
+      updateControls(currentSession);
+    }
+  }
+
+  async function testPush() {
+    $("settingsMsg").textContent = "正在测试推送...";
+    try {
+      const data = await api("/api/test_push", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      $("settingsMsg").textContent = data.pushed ? "测试推送成功，请在微信查看。" : ("测试失败：" + (data.reason || "未知原因"));
+    } catch (error) {
+      $("settingsMsg").textContent = error.message;
+    }
+  }
+
+  $("pickResumeBtn").addEventListener("click", event => {
+    event.stopPropagation();
+    $("resumeInput").click();
+  });
+  $("dropZone").addEventListener("click", () => {
+    if (!busy && !runRunning) $("resumeInput").click();
+  });
+  $("resumeInput").addEventListener("change", event => {
+    if (event.target.files && event.target.files[0]) uploadFile(event.target.files[0]);
+  });
+  ["dragenter", "dragover"].forEach(name => {
+    $("dropZone").addEventListener(name, event => {
+      event.preventDefault();
+      $("dropZone").classList.add("dragover");
+    });
+  });
+  ["dragleave", "drop"].forEach(name => {
+    $("dropZone").addEventListener(name, event => {
+      event.preventDefault();
+      $("dropZone").classList.remove("dragover");
+    });
+  });
+  $("dropZone").addEventListener("drop", event => {
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+      uploadFile(event.dataTransfer.files[0]);
+    }
+  });
+
+  $("sendBtn").addEventListener("click", sendMessage);
+  $("chatInput").addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+  $("startBtn").addEventListener("click", startMatch);
+  $("saveSettingsBtn").addEventListener("click", saveSettings);
+  $("testPushBtn").addEventListener("click", testPush);
+
+  loadInfo().catch(error => {
+    $("runHint").className = "hint error";
+    $("runHint").textContent = "读取本地信息失败：" + error.message;
+  });
+</script>
+</body>
+</html>

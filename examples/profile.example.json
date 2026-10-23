@@ -1,0 +1,13 @@
+{
+  "name": "张三",
+  "years_of_experience": 5,
+  "degree": "硕士",
+  "current_title": "结构工程师",
+  "skills": ["PKPM", "YJK", "SAP2000", "ABAQUS", "Python", "Revit", "BIM", "有限元分析", "钢结构设计"],
+  "industry": "建筑结构设计",
+  "certificates": ["一级注册结构工程师"],
+  "expected_salary_k": 28,
+  "expected_city": "深圳",
+  "summary": "5年结构设计经验，熟悉有限元与Python自动化，寻求结构×AI交叉方向。",
+  "preferences": "优先结构设计或AI应用方向，不考虑长期驻场"
+}

@@ -1,0 +1,47 @@
+# 本地配置与密钥：绝不提交
+config.json
+.env
+.env.*
+
+# 运行时/个人数据
+data/*
+!data/.gitkeep
+data/_uploads/
+output/*
+!output/.gitkeep
+resume/*
+!resume/README.md
+!resume/.gitkeep
+pages/*
+!pages/README.md
+!pages/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+pytest_cache/
+.coverage
+
+# 打包/构建
+build/
+dist/
+*.spec
+
+# 日志与临时文件
+*.log
+*.tmp
+
+# 旧版/私有归档（不进入开源仓库）
+legacy/
+
+# 本地学习资料（与本项目无关）
+learn_practice/
+
+# 操作系统/编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

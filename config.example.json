@@ -1,0 +1,19 @@
+{
+  "deepseek_api_key": "sk-xxxx",
+  "search_api_provider": "deepseek",
+  "search_api_key": "",
+  "search_api_backup_key": "",
+  "serverchan_sendkey": "",
+  "default_city": "深圳",
+  "job_direction": "结构工程 × AI 交叉方向",
+  "min_salary_k": 20,
+  "publish_days_limit": 30,
+  "top_n": 30,
+  "results_per_query": 10,
+  "queries_per_keyword": 1,
+  "local_pages_dir": "pages",
+  "page_text_max_chars": 20000,
+  "fine_batch_size": 8,
+  "manual_keywords_fallback": ["结构工程师", "BIM工程师", "CAE仿真工程师"],
+  "skill_dict": ["PKPM", "YJK", "SAP2000", "ETABS", "ABAQUS", "ANSYS", "MIDAS", "BIM", "Revit", "Tekla", "AutoCAD", "Python", "机器学习", "深度学习", "有限元", "钢结构", "混凝土", "抗震", "超限高层", "幕墙", "装配式", "减隔震"]
+}

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>岗位推荐报告 2026-10-23</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --brand: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  .container { max-width: 980px; margin: 0 auto; padding: 36px 20px 64px; }
+  header { margin-bottom: 22px; }
+  h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: .5px; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  .profile {
+    background: linear-gradient(135deg, #eff6ff, #ffffff);
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin: 20px 0;
+  }
+  .profile h2 { margin: 0 0 8px; font-size: 17px; }
+  .profile p { margin: 4px 0; color: #374151; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin: 18px 0 26px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .stat strong { display: block; font-size: 22px; color: var(--brand); }
+  .stat span { color: var(--muted); font-size: 12px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px;
+    margin: 16px 0;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+  }
+  .card-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  .head-left { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+  .rank {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: var(--brand);
+    background: #eff6ff;
+    border-radius: 8px;
+    padding: 4px 9px;
+    font-size: 14px;
+  }
+  .job-title { margin: 0; font-size: 20px; line-height: 1.4; word-break: break-word; }
+  .company { color: var(--muted); margin-top: 4px; font-size: 14px; }
+  .score {
+    flex: 0 0 auto;
+    min-width: 70px;
+    text-align: center;
+    border-radius: 12px;
+    padding: 8px 10px;
+  }
+  .score strong { display: block; font-size: 24px; line-height: 1.1; }
+  .score span { font-size: 11px; }
+  .score.high { background: #dcfce7; color: #166534; }
+  .score.mid { background: #fef3c7; color: #92400e; }
+  .score.low { background: #f1f5f9; color: #475569; }
+  .meta { color: var(--muted); font-size: 14px; margin-top: 12px; }
+  .source-badge {
+    display: inline-block;
+    padding: 1px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    margin-right: 6px;
+  }
+  .source-badge.local { background: #dcfce7; color: #166534; }
+  .source-badge.ext { background: #dbeafe; color: #1d4ed8; }
+  .source-badge.snapshot { background: #fef3c7; color: #92400e; }
+  .source-badge.unknown { background: #f1f5f9; color: #475569; }
+  .no-link { color: var(--muted); font-size: 13px; }
+  .summary { margin: 12px 0 0; color: #374151; font-size: 14px; }
+  .reasons { margin: 14px 0 0; padding-left: 20px; color: #374151; font-size: 14px; }
+  .reasons li { margin: 3px 0; }
+  .card-foot { margin-top: 14px; }
+  .apply {
+    display: inline-block;
+    color: #fff;
+    background: var(--brand);
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+  .apply:hover { background: #1d4ed8; }
+  .empty {
+    background: var(--card);
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+    text-align: center;
+    padding: 46px 20px;
+    color: var(--muted);
+  }
+  .empty h2 { margin: 0 0 8px; color: var(--text); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 30px; text-align: center; }
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card-head { flex-direction: column; }
+    .score { align-self: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>岗位推荐报告 2026-10-23</h1>
+    <div class="subtitle">目标城市：深圳 · 数据来自本地页面采集与搜索快照</div>
+  </header>
+
+  <section class="profile">
+    <h2>简历画像</h2>
+    <p>张三 · 5 年经验 · 硕士</p>
+    <p>期望：深圳 · 28K · 技能：PKPM、YJK、SAP2000、ABAQUS、Python</p>
+    <p>5年结构设计经验，熟悉有限元与Python自动化，寻求结构×AI交叉方向。</p>
+    <p>求职偏好：优先结构设计或AI应用方向，不考虑长期驻场</p>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><strong>2</strong><span>本地/扩展岗位</span></div>
+    <div class="stat"><strong>3</strong><span>快照岗位</span></div>
+    <div class="stat"><strong>5</strong><span>岗位总数</span></div>
+    <div class="stat"><strong>3</strong><span>推荐（过滤后）</span></div>
+    <div class="stat"><strong>82.0</strong><span>平均匹配分</span></div>
+  </section>
+
+  <main>
+    <article class="card">
+      <div class="card-head">
+        <div class="head-left">
+          <span class="rank">#1</span>
+          <div>
+            <h2 class="job-title">AI应用工程师（工程方向）</h2>
+            <div class="company">某工程科技公司</div>
+          </div>
+        </div>
+        <div class="score high"><strong>88</strong><span>匹配分</span></div>
+      </div>
+      <div class="meta"><span class="source-badge local">本地页面</span> · 薪资 25-40K·15薪 · 城市 深圳 · 年限 3-5年 · 学历 本科 · 发布 2026-10-22 · 来源 51job</div>
+      <p class="summary">负责工程AI应用、RAG知识库与Agent工具链落地，要求熟悉Python与工程业务。</p>
+      <ul class="reasons"><li>岗位要求3-5年，你的经验5年，年限得分20分</li><li>岗位要求本科，你的学历硕士，学历得分15分</li><li>简历技能命中8项（PKPM、Python、Revit、BIM、有限元分析等），技能得分24分</li><li>薪资25-40K与期望28K有重叠，薪资得分15分</li><li>3天内发布；含急招；薪资上限达到期望1.2倍</li></ul>
+      <div class="card-foot"><a class="apply" href="https://example.com/jobs/ai-001" target="_blank" rel="noopener">查看原岗位</a></div>
+    </article>
+    
+    <article class="card">
+      <div class="card-head">
+        <div class="head-left">
+          <span class="rank">#2</span>
+          <div>
+            <h2 class="job-title">结构工程师（高层方向）</h2>
+            <div class="company">某建筑设计院</div>
+          </div>
+        </div>
+        <div class="score high"><strong>82</strong><span>匹配分</span></div>
+      </div>
+      <div class="meta"><span class="source-badge ext">扩展采集</span> · 薪资 22-32K·14薪 · 城市 深圳 · 年限 3-5年 · 学历 本科 · 发布 2026-10-21 · 来源 猎聘</div>
+      <p class="summary">负责高层建筑结构方案与施工图设计，熟悉PKPM、YJK及超限审查流程。</p>
+      <ul class="reasons"><li>岗位要求3-5年，你的经验5年，年限得分20分</li><li>岗位要求本科，你的学历硕士，学历得分15分</li><li>简历技能命中6项（PKPM、YJK、SAP2000等），技能得分18分</li><li>薪资22-32K与期望28K有重叠，薪资得分15分</li><li>2天内发布；含可培养；薪资上限达到期望1.2倍</li></ul>
+      <div class="card-foot"><a class="apply" href="https://example.com/jobs/struct-002" target="_blank" rel="noopener">查看原岗位</a></div>
+    </article>
+    
+    <article class="card">
+      <div class="card-head">
+        <div class="head-left">
+          <span class="rank">#3</span>
+          <div>
+            <h2 class="job-title">BIM研发工程师</h2>
+            <div class="company">某数字建造公司</div>
+          </div>
+        </div>
+        <div class="score mid"><strong>76</strong><span>匹配分</span></div>
+      </div>
+      <div class="meta"><span class="source-badge snapshot">搜索快照</span> · 薪资 20-30K · 城市 深圳 · 年限 3-5年 · 学历 本科 · 发布 2026-10-20 · 来源 BOSS直聘</div>
+      <p class="summary">负责BIM模型开发、Revit二次开发与CAD数据处理。</p>
+      <ul class="reasons"><li>岗位要求3-5年，你的经验5年，年限得分20分</li><li>岗位要求本科，你的学历硕士，学历得分15分</li><li>简历技能命中4项（Revit、BIM、Python、AutoCAD），技能得分12分</li><li>薪资20-30K与期望28K有重叠，薪资得分15分</li><li>3天内发布；含尽快到岗；薪资上限达到期望1.2倍</li></ul>
+      <div class="card-foot"><a class="apply" href="https://example.com/jobs/bim-003" target="_blank" rel="noopener">查看原岗位</a></div>
+    </article>
+    </main>
+
+  <footer>
+    信息来自本地保存页面与搜索快照，可能存在滞后或缺失；投递前请点开原链接确认岗位状态。
+  </footer>
+</div>
+</body>
+</html>
