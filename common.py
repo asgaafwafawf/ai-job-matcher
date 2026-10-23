@@ -249,7 +249,7 @@ def call_deepseek(
         raise RuntimeError("未配置 deepseek_api_key")
 
     body = {
-        "model": "deepseek-chat",
+        "model": str(config.get("deepseek_model") or "deepseek-chat").strip(),
         "temperature": 0.1,
         "messages": [
             {"role": "system", "content": system_prompt},

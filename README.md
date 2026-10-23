@@ -71,10 +71,13 @@ cp config.example.json config.json
 
 ```json
 {
+  "deepseek_model": "deepseek-chat",
   "deepseek_api_key": "sk-你的key",
   "search_api_provider": "deepseek"
 }
 ```
+
+> 模型和 key 的详细配置方法见下方 [配置模型与 API Key](#配置模型与-api-key)。
 
 `config.json` 已在 `.gitignore` 中，**不要提交到 GitHub**。
 
@@ -112,11 +115,83 @@ python main.py
 
 命令行版会依次执行简历解析、关键词、搜索、精评、报告、推送。网页版是推荐入口，支持上传/对话/实时日志/历史报告。
 
+## 配置模型与 API Key
+
+### 1. 获取 DeepSeek API Key
+
+1. 打开 DeepSeek 开放平台的 API Keys 页面：<https://platform.deepseek.com/api_keys>
+2. 注册/登录后创建一个 API Key
+3. Key 通常只在创建时完整显示一次，复制后立即保存
+4. 确认账户有可用余额（Chat 调用和 DeepSeek Search 共用这个 key；搜索计费见下文）
+5. 不要把 key 发到聊天、截图、Issue 或提交到 Git 仓库
+
+官方文档：<https://api-docs.deepseek.com/zh-cn/>
+
+### 2. 写入 `config.json`
+
+先复制模板：
+
+```bash
+# Windows PowerShell / CMD
+copy config.example.json config.json
+
+# macOS / Linux / Git Bash
+cp config.example.json config.json
+```
+
+用文本编辑器打开 `config.json`：
+
+```json
+{
+  "deepseek_model": "deepseek-chat",
+  "deepseek_api_key": "sk-xxxxxxxxxxxxxxxx",
+  "search_api_provider": "deepseek",
+  "serverchan_sendkey": ""
+}
+```
+
+字段说明：
+
+- `deepseek_model`：DeepSeek 模型名，默认 `deepseek-chat`
+- `deepseek_api_key`：DeepSeek API Key，建议直接粘贴，不要带空格、换行或多余引号
+- `search_api_provider`：默认 `deepseek`，使用 DeepSeek Search；也可改为 `bocha` / `bing`
+- `serverchan_sendkey`：可选，填了才会微信推送
+
+保存后重启网页服务（关闭黑色命令行窗口，再双击 `启动网页.bat`，或重新执行 `python web_app.py`）。
+
+验证是否配置成功：
+
+- 打开网页右侧“推送与搜索设置”，看到“DeepSeek：已配置”即可（页面只显示状态，不显示 key）
+- 上传一份简历，能正常解析出画像，说明 Chat key 可用
+- 点击“开始匹配”，日志出现 `搜索源 deepseek`，说明 DeepSeek Search 可用
+
+网页设置页只管理 Server酱和搜索 key；**DeepSeek 的模型/key 请修改本机 `config.json`**。
+
+### 3. 更换模型
+
+- 默认推荐 `deepseek-chat`：本项目大量使用 `response_format: json_object`，需要稳定的 JSON 输出
+- 可以尝试 `deepseek-reasoner`，但它的 JSON 模式/参数支持与 chat 模型可能不同；若出现 JSON 解析失败，请改回 `deepseek-chat`
+- `deepseek_model` 会影响简历解析、关键词生成、对话抽取、LLM 精评等所有 Chat 调用
+- DeepSeek Search 使用 `deepseek_api_key`，但不经过 `deepseek_model`
+- 当前 API 地址固定为 `https://api.deepseek.com`；不支持只改配置就切换到其他厂商模型
+
+### 4. 常见错误
+
+| 现象 | 原因/处理 |
+|---|---|
+| `401` / Unauthorized | key 错误、已删除或带空格/换行；重新创建并粘贴 |
+| `402` / 余额不足 | 到 DeepSeek 平台充值 |
+| `429` / Rate limit | 请求过快；降低频率，稍后重试 |
+| 模型不存在 / model not found | 检查 `deepseek_model`，建议用 `deepseek-chat` |
+| JSON 解析失败 | 模型不支持当前 JSON 模式；换回 `deepseek-chat` |
+| 搜索功能报错/无结果 | 检查 DeepSeek Search 是否可用、余额是否充足；也可改用本地 `pages/` 或 Bocha/Bing |
+
 ## 配置说明
 
 | 字段 | 必填 | 说明 |
 |---|---|---|
-| `deepseek_api_key` | 是 | DeepSeek Chat/搜索共用 |
+| `deepseek_api_key` | 是 | DeepSeek Chat + DeepSeek Search 共用；不要提交 |
+| `deepseek_model` | 否 | 默认 `deepseek-chat`；需稳定的 JSON 输出，不建议随意更换 |
 | `search_api_provider` | 否 | 默认 `deepseek`；可选 `bocha` / `bing` |
 | `search_api_key` | 否 | 仅博查/Bing 需要；DeepSeek 搜索不需要 |
 | `search_api_backup_key` | 否 | 主搜索源失败时的备份 key |

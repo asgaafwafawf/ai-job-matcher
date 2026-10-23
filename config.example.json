@@ -1,5 +1,6 @@
 {
   "deepseek_api_key": "sk-xxxx",
+  "deepseek_model": "deepseek-chat",
   "search_api_provider": "deepseek",
   "search_api_key": "",
   "search_api_backup_key": "",
